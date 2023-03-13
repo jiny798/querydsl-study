@@ -3,6 +3,7 @@ package querydsl.stydy.entity;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -424,4 +425,19 @@ public class QuerydslBasicTest {
         }
     }
 
+    @Test//상수 문자 더하기
+    public void concat(){
+        Tuple result = queryFactory
+                .select(member.username, Expressions.constant("A"))
+                .from(member)
+                .fetchFirst();
+        System.out.println(result); // 출력 : [member1, A]
+
+        String result2 = queryFactory
+                .select(member.username.concat("_").concat(member.age.stringValue()))
+                .from(member)
+                .where(member.username.eq("member1"))
+                .fetchOne();
+        System.out.println(result2); // 출력 : member1_10
+    }
 }
