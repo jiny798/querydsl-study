@@ -2,6 +2,7 @@ package querydsl.stydy.entity;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
@@ -496,5 +497,31 @@ public class QuerydslBasicTest {
                 .from(member)
                 .fetch();
 
+    }
+
+    //프로퍼티,필드 접근 생성 방식에서 이름이 다를 때
+    @Test
+    public void alias(){
+        QMember subMember = new QMember("subMember");
+        List<UserDto> fetch = queryFactory
+                .select(Projections.fields(UserDto.class,
+                                member.username.as("name"),
+                                ExpressionUtils.as(
+                                        JPAExpressions
+                                                .select(subMember.age.max())
+                                                .from(subMember), "age")
+                        )
+                ).from(member)
+                .fetch();
+
+        for (UserDto userDto : fetch){
+            System.out.println(userDto.getName()+" "+userDto.getAge());
+        }
+        /**
+         * member1 40
+         * member2 40
+         * member3 40
+         * member4 40
+         */
     }
 }
