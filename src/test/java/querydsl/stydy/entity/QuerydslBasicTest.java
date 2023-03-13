@@ -205,5 +205,46 @@ public class QuerydslBasicTest {
     }
 
 
+    /*
+    * join() , innerJoin() : 내부 조인(inner join)
+    * leftJoin() : left 외부 조인(left outer join)
+    * rightJoin() : rigth 외부 조인(rigth outer join)
+    */
+    @Test //기본 조인 join(조인 대상, 별칭으로 사용할 Q타입)
+    public void join() throws Exception{
+        QMember member = QMember.member;
+        QTeam team = QTeam.team;
 
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .join(member.team,team)
+                .where(team.name.eq("teamA"))
+                .fetch();
+
+        assertThat(result)
+                .extracting("username")
+                .containsExactly("member1","member2");
     }
+
+    /**
+     * 세타 조인(연관관계가 없는 필드로 조인)
+     * 회원의 이름이 팀 이름과 같은 회원 조회
+     */
+    @Test
+    public void theta_join() throws Exception {
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+
+        List<Member> result = queryFactory
+                .select(member)
+                .from(member, team)
+                .where(member.username.eq(team.name)) //where 절을 이용하여 조회
+                .fetch();
+
+        assertThat(result)
+                .extracting("username")
+                .containsExactly("teamA", "teamB");
+    }
+
+
+}
