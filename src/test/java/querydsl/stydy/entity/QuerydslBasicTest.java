@@ -2,6 +2,7 @@ package querydsl.stydy.entity;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -459,6 +460,41 @@ public class QuerydslBasicTest {
             Integer age = tuple.get(member.age);
             System.out.println("username=" + username+",  age=" + age);
         }
+
+    }
+
+    /*
+    결과를 DTO 반환할 때 사용
+    다음 3가지 방법 지원
+    프로퍼티 접근
+    필드 직접 접근
+    생성자 사용
+     */
+    @Test
+    public void selectDto(){
+        //프로퍼티 접근 - Setter 방식
+        List<MemberDto> result1 = queryFactory
+                .select(Projections.bean(MemberDto.class,
+                        member.username,
+                        member.age))
+                .from(member)
+                .fetch();
+
+        //필드 직접 접근
+        List<MemberDto> result2 = queryFactory
+                .select(Projections.fields(MemberDto.class,
+                        member.username,
+                        member.age))
+                .from(member)
+                .fetch();
+
+        //생성자 사용
+        List<MemberDto> result3 = queryFactory
+                .select(Projections.constructor(MemberDto.class,
+                        member.username,
+                        member.age))
+                .from(member)
+                .fetch();
 
     }
 }
