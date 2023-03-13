@@ -440,4 +440,25 @@ public class QuerydslBasicTest {
                 .fetchOne();
         System.out.println(result2); // 출력 : member1_10
     }
+
+    @Test //프로젝션 - 튜플로 조회
+    public void projection(){
+        List<String> result = queryFactory
+                .select(member.username)
+                .from(member)
+                .fetch();
+        // 프로젝션 대상이 하나면 타입을 명확하게 지정 가능
+
+        // 프로젝션 대상이 둘이상이면 튜플이나 DTO로 조회
+        List<Tuple> result2 = queryFactory
+                .select(member.username, member.age)
+                .from(member)
+                .fetch();
+        for (Tuple tuple : result2) {
+            String username = tuple.get(member.username);
+            Integer age = tuple.get(member.age);
+            System.out.println("username=" + username+",  age=" + age);
+        }
+
+    }
 }
