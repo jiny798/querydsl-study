@@ -632,4 +632,23 @@ public class QuerydslBasicTest {
          * 실행하고 나면 영속성 컨텍스트를 초기화 하는 것이 안전하다.
          */
     }
+
+    @Test
+    public void sqlFuction(){
+        String result = queryFactory
+                .select(Expressions.stringTemplate("function('replace', {0}, {1}, {2})", member.username, "member", "M"))
+                .from(member)
+                .fetchFirst();
+        //member.username 에서 "member" 를 "M"으로 교체
+
+
+        String result2 = queryFactory
+                .select(member.username)
+                .from(member)
+                .where(member.username.eq(Expressions.stringTemplate("function('lower', {0})", member.username))).fetchFirst();
+        //member.username 소문자로 변경해서 조건문 비교
+        //lower 같은 ansi 표준 함수들은 querydsl이 상당부분 내장하고 있다. 따라서 다음과 같이 처리해도 결과는 같다.
+        //.where(member.username.eq(member.username.lower()))
+
+    }
 }
