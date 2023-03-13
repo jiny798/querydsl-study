@@ -17,8 +17,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QuerydslBasicTest {
     @PersistenceContext
     EntityManager em;
+
+    JPAQueryFactory queryFactory;
+
     @BeforeEach
     public void before() {
+        queryFactory = new JPAQueryFactory(em);
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
         em.persist(teamA);
@@ -50,6 +54,20 @@ public class QuerydslBasicTest {
 
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         QMember m = new QMember("m1");
+
+        Member findMember = queryFactory
+                .select(m)
+                .from(m)
+                .where(m.username.eq("member1"))
+                .fetchOne();
+
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
+    @Test
+    public void startQuerydsl2(){
+
+//        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+        QMember m = new QMember("m");
 
         Member findMember = queryFactory
                 .select(m)
