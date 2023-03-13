@@ -524,4 +524,14 @@ public class QuerydslBasicTest {
          * member4 40
          */
     }
+
+    //@QueryProjection 활용
+    @Test
+    public void queryProjection(){
+        List<MemberDto> result = queryFactory
+                .select(new QMemberDto(member.username, member.age))
+                .from(member)
+                .fetch();
+
+    }
 }
