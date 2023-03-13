@@ -599,4 +599,37 @@ public class QuerydslBasicTest {
         return usernameEq(usernameCond).and(ageEq(ageCond));
     }
 
+
+    // 수정, 삭제 벌크 연산
+    @Test
+    public void 수정벌크(){
+        long count = queryFactory
+                .update(member)
+                .set(member.username,"비회원")
+                .where(member.age.lt(28))
+                .execute();
+        assertThat(count).isEqualTo(2);
+    }
+
+    @Test
+    public void 수정벌크2(){
+        long count = queryFactory
+                .update(member)
+                .set(member.age,member.age.add(1)) //곱하기는 multiply(x) 사용
+                .execute();
+        assertThat(count).isEqualTo(4);
+    }
+
+    @Test
+    public void 삭제벌크(){
+        long count = queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+        assertThat(count).isEqualTo(3);
+        /**
+         * JPQL 배치와 마찬가지로, 영속성 컨텍스트에 있는 엔티티를 무시하고 실행되기 때문에 배치 쿼리를
+         * 실행하고 나면 영속성 컨텍스트를 초기화 하는 것이 안전하다.
+         */
+    }
 }
