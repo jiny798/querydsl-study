@@ -2,14 +2,17 @@ package querydsl.stydy.repository;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 import querydsl.stydy.dto.MemberSearchCondition;
 import querydsl.stydy.dto.MemberTeamDto;
 import querydsl.stydy.dto.QMemberTeamDto;
+import querydsl.stydy.entity.Member;
 import querydsl.stydy.entity.QMember;
 import querydsl.stydy.entity.QTeam;
 
@@ -106,16 +109,27 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        long total = queryFactory
+//        long total = queryFactory
+//                .select(member)
+//                .from(member)
+//                .leftJoin(member.team, team)
+//                .where(usernameEq(condition.getUsername()),
+//                        teamNameEq(condition.getTeamName()),
+//                        ageGoe(condition.getAgeGoe()),
+//                        ageLoe(condition.getAgeLoe()))
+//                .fetch().size();
+        JPAQuery<Member> countQuery = queryFactory
                 .select(member)
                 .from(member)
                 .leftJoin(member.team, team)
                 .where(usernameEq(condition.getUsername()),
                         teamNameEq(condition.getTeamName()),
                         ageGoe(condition.getAgeGoe()),
-                        ageLoe(condition.getAgeLoe()))
-                .fetch().size();
+                        ageLoe(condition.getAgeLoe()));
 
-        return new PageImpl<>(content,pageable,total);
+
+
+        //return new PageImpl<>(content,pageable,total);
+        return PageableExecutionUtils.getPage(content,pageable,countQuery::fetchCount);
     }
 }
