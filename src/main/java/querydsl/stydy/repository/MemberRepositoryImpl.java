@@ -35,9 +35,9 @@ public class MemberRepositoryImpl extends QuerydslRepositorySupport implements M
 //    public MemberRepositoryImpl(EntityManager em){
 //        this.queryFactory = new JPAQueryFactory(em);
 //    }
-    public MemberRepositoryImpl(){
+    public MemberRepositoryImpl(EntityManager em){
         super(Member.class);
-        this.queryFactory = new JPAQueryFactory(getEntityManager());
+        this.queryFactory = new JPAQueryFactory(em);
     }
     @Override
     public List<MemberTeamDto> search(MemberSearchCondition condition){

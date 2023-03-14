@@ -1,11 +1,12 @@
 package querydsl.stydy.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import javax.persistence.*;
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(of = {"id", "username", "age"})
+@ToString
 public class Member {
     @Id
     @GeneratedValue
@@ -15,6 +16,7 @@ public class Member {
     private int age;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
+    @ToString.Exclude @JsonIgnore
     private Team team;
     public Member(String username) {
         this(username, 0);
