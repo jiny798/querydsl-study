@@ -1,6 +1,7 @@
 package querydsl.stydy.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -83,6 +84,37 @@ public class MemberJpaRepository {
                 .leftJoin(member.team, team)
                 .where(builder)
                 .fetch();
+    }
+
+    //회원명, 팀명, 나이(ageGoe, ageLoe)
+    public List<MemberTeamDto> searchByParam(MemberSearchCondition condition) {
+        return queryFactory
+                .select(new QMemberTeamDto(
+                        member.id,
+                        member.username,
+                        member.age,
+                        team.id,
+                        team.name))
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(usernameEq(condition.getUsername()),
+                        teamNameEq(condition.getTeamName()),
+                        ageGoe(condition.getAgeGoe()),
+                        ageLoe(condition.getAgeLoe()))
+                .fetch();
+    }
+    //아래 BooleanExpression 재사용 가능
+    private BooleanExpression usernameEq(String username) {
+        return !hasText(username) ? null : member.username.eq(username);
+    }
+    private BooleanExpression teamNameEq(String teamName) {
+        return !hasText(teamName) ? null : team.name.eq(teamName);
+    }
+    private BooleanExpression ageGoe(Integer ageGoe) {
+        return ageGoe == null ? null : member.age.goe(ageGoe);
+    }
+    private BooleanExpression ageLoe(Integer ageLoe) {
+        return ageLoe == null ? null : member.age.loe(ageLoe);
     }
 
 }
