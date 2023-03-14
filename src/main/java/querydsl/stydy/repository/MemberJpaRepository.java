@@ -1,15 +1,23 @@
 package querydsl.stydy.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
+import querydsl.stydy.dto.MemberSearchCondition;
+import querydsl.stydy.dto.MemberTeamDto;
+import querydsl.stydy.dto.QMemberTeamDto;
 import querydsl.stydy.entity.Member;
 import querydsl.stydy.entity.QMember;
+import querydsl.stydy.entity.QTeam;
 
 import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.util.StringUtils.hasText;
 import static querydsl.stydy.entity.QMember.member;
+import static querydsl.stydy.entity.QTeam.team;
 
 @Repository
 public class MemberJpaRepository {
@@ -47,4 +55,34 @@ public class MemberJpaRepository {
                 .where(member.username.eq(username))
                 .fetch();
     }
+
+    //Builder 사용
+    //회원명, 팀명, 나이(ageGoe, ageLoe)
+    public List<MemberTeamDto> searchByBuilder(MemberSearchCondition condition) {
+        BooleanBuilder builder = new BooleanBuilder();
+        if (hasText(condition.getUsername())) {
+            builder.and(member.username.eq(condition.getUsername()));
+        }
+        if (hasText(condition.getTeamName())) {
+            builder.and(team.name.eq(condition.getTeamName()));
+        }
+        if (condition.getAgeGoe() != null) {
+            builder.and(member.age.goe(condition.getAgeGoe()));
+        }
+        if (condition.getAgeLoe() != null) {
+            builder.and(member.age.loe(condition.getAgeLoe()));
+        }
+        return queryFactory
+                .select(new QMemberTeamDto(
+                        member.id,
+                        member.username,
+                        member.age,
+                        team.id,
+                        team.name))
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(builder)
+                .fetch();
+    }
+
 }
