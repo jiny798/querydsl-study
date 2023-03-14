@@ -118,18 +118,19 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
 //                        ageGoe(condition.getAgeGoe()),
 //                        ageLoe(condition.getAgeLoe()))
 //                .fetch().size();
-        JPAQuery<Member> countQuery = queryFactory
-                .select(member)
+        JPAQuery<Long> countQuery = queryFactory
+                .select(member.count())
                 .from(member)
                 .leftJoin(member.team, team)
-                .where(usernameEq(condition.getUsername()),
+                .where(
+                        usernameEq(condition.getUsername()),
                         teamNameEq(condition.getTeamName()),
                         ageGoe(condition.getAgeGoe()),
-                        ageLoe(condition.getAgeLoe()));
-
+                        ageLoe(condition.getAgeLoe())
+                );
 
 
         //return new PageImpl<>(content,pageable,total);
-        return PageableExecutionUtils.getPage(content,pageable,countQuery::fetchCount);
+        return PageableExecutionUtils.getPage(content,pageable,countQuery::fetchOne);
     }
 }
