@@ -1,12 +1,16 @@
 package querydsl.stydy.repository;
 
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 import querydsl.stydy.dto.MemberSearchCondition;
@@ -91,7 +95,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
 
     @Override
     public Page<MemberTeamDto> searchPageComplex(MemberSearchCondition condition,Pageable pageable){
-        List<MemberTeamDto> content = queryFactory
+        JPAQuery<MemberTeamDto> query = queryFactory
                 .select(new QMemberTeamDto(
                         member.id,
                         member.username,
@@ -106,8 +110,15 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
                         ageLoe(condition.getAgeLoe())
                         )
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+                .limit(pageable.getPageSize());
+
+        for (Sort.Order o : pageable.getSort()) {
+            PathBuilder pathBuilder = new PathBuilder(member.getType(),
+                    member.getMetadata());
+            query.orderBy(new OrderSpecifier<>(o.isAscending() ? Order.ASC : Order.DESC,
+                    pathBuilder.get(o.getProperty())));
+        }
+        List<MemberTeamDto> content = query.fetch();
 
 //        long total = queryFactory
 //                .select(member)
